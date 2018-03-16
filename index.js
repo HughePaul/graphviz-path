@@ -60,6 +60,18 @@ class Nodes {
         });
     }
 
+    removeUnconnectedNodes() {
+        let usedNodes = _.uniq(_.map(this.edges, 'fromId').concat(_.map(this.edges, 'toId')));
+        let allNodes = Object.keys(this.allNodes);
+        let unusedNodes = _.difference(allNodes, usedNodes);
+        for (let id of unusedNodes) {
+            let node = this.allNodes[id];
+            let group = this.groups[node.attribs && node.attribs.group] || this.external;
+            delete group[id];
+            delete this.allNodes[id];
+        }
+    }
+
     drawNode(id, attribs) {
         attribs = attribs || {};
         attribs.href = 'javascript:(function(){document.getElementById(\'g\').setAttribute(\'class\', \'graph ' + id + '\')})()';
@@ -136,7 +148,6 @@ class Nodes {
     }
 
     svg() {
-        this.generateMissingNodes();
         let dot = this.dot();
         let svg = Viz(dot);
         let css = this.style();
