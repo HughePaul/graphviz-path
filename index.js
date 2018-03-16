@@ -13,6 +13,7 @@ let attr = attribs => attribs && Object.keys(attribs).length ?
 
 class Nodes {
     constructor(options) {
+        this.allNodes = {};
         this.groups = {};
         this.external = {};
         this.edges = [];
@@ -20,10 +21,11 @@ class Nodes {
             node: { shape: 'box3d' },
             edge: { fontsize: 7, color: 'black' },
             groupNode: { shape: 'rectangle' },
+            missingNode: { shape: 'rectangle' },
             groupEdge: { color: 'black' },
             fromStyle: 'stroke: red; stroke-width: 4px;',
             toStyle: 'stroke: green; stroke-width: 4px;',
-            css: ''
+            css: '.node { cursor: pointer; }'
         });
     }
 
@@ -36,19 +38,39 @@ class Nodes {
             nodes = this.groups[group];
         }
         let id = nodeId(name);
-        attribs.id = id;
-        attribs.href = 'javascript:console.log(document.getElementById(\'g\').setAttribute(\'class\', \'graph ' + id + '\'))';
         if (!attribs.label) attribs.label = name;
+        attribs.id = id;
         nodes[id] = attribs;
+        this.allNodes[id] = attribs;
+        return attribs;
     }
 
-    edge(from, to, attribs) {
+    edge(fromName, toName, attribs) {
+        let fromId = nodeId(fromName);
+        let toId = nodeId(toName);
+        let edge = { fromId, fromName, toId, toName, attribs };
+        this.edges.push(edge);
+        return edge;
+    }
+
+    generateMissingNodes() {
+        _.each(this.edges, edge => {
+            if (!this.allNodes[edge.fromId]) this.node(edge.fromName, _.clone(this.options.missingNode));
+            if (!this.allNodes[edge.toId]) this.node(edge.toName, _.clone(this.options.missingNode));
+        });
+    }
+
+    drawNode(id, attribs) {
         attribs = attribs || {};
-        attribs.edgetooltip = from + ' -&gt; ' + to;
-        from = nodeId(from);
-        to = nodeId(to);
-        attribs.id = 'f_' + from + ' t_' + to;
-        this.edges.push({ from, to, attribs });
+        attribs.href = 'javascript:(function(){document.getElementById(\'g\').setAttribute(\'class\', \'graph ' + id + '\')})()';
+        return '    ' + id + attr(attribs) + ';\n';
+    }
+
+    drawEdge(edge) {
+        edge.attribs = edge.attribs || {};
+        edge.attribs.edgetooltip = edge.fromName + ' -&gt; ' + edge.toName;
+        edge.attribs.id = 'f_' + edge.fromId + ' t_' + edge.toId;
+        return '  ' + edge.fromId + ' -> ' + edge.toId + attr(edge.attribs) + ';\n';
     }
 
     dot() {
@@ -73,18 +95,18 @@ class Nodes {
             if (this.options.groupEdge)
                 g += '    edge' + attr(this.options.groupEdge) + ';\n';
 
-            _.each(group, (node, id) => g += '    ' + id + attr(node) + ';\n');
+            _.each(group, (node, id) => g += this.drawNode(id, node));
 
             g += '  }\n\n';
         });
 
         // draw external items
-        _.each(this.external, (item, id) => g += '  ' + id + attr(item) + ';\n');
+        _.each(this.external, (node, id) => g += this.drawNode(id, node));
 
         g += '\n';
 
         // draw edges
-        _.each(this.edges, item => g += '  ' + item.from + ' -> ' + item.to + attr(item.attribs) + ';\n');
+        _.each(this.edges, edge => g += this.drawEdge(edge));
 
         g += '}\n';
 
@@ -114,6 +136,7 @@ class Nodes {
     }
 
     svg() {
+        this.generateMissingNodes();
         let dot = this.dot();
         let svg = Viz(dot);
         let css = this.style();
