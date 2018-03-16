@@ -22,7 +22,8 @@ class Nodes {
             groupNode: { shape: 'rectangle' },
             groupEdge: { color: 'black' },
             fromStyle: 'stroke: red; stroke-width: 4px;',
-            toStyle: 'stroke: green; stroke-width: 4px;'
+            toStyle: 'stroke: green; stroke-width: 4px;',
+            css: ''
         });
     }
 
@@ -108,7 +109,8 @@ class Nodes {
         });
 
         return froms.join(',\n') + '{' + this.options.fromStyle + '}\n\n' +
-            tos.join(',\n') + '{' + this.options.toStyle + '}\n';
+            tos.join(',\n') + '{' + this.options.toStyle + '}\n\n' +
+            this.options.css + '\n';
     }
 
     svg() {
