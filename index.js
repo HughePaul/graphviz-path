@@ -8,25 +8,35 @@ let groupName = name => 'cluster_' + name.toLowerCase().replace(/[^a-z0-9]+/g, '
 let nodeId = name => 'r' + name.toLowerCase().replace(/[^a-z0-9]+/g, '_');
 
 let attr = attribs => attribs && Object.keys(attribs).length ?
-    ' [ ' + Object.keys(attribs).map(v => v + '=' + JSON.stringify(attribs[v])).join('; ') + ' ]'
+    Object.keys(attribs).map(v => v + '=' + JSON.stringify(attribs[v]) + ';').join(' ')
     : '';
+
+let nodeAttr = attribs => {
+    let attrText = attr(attribs);
+    return attrText ? ' [ ' + attrText + ' ]' : '';
+};
 
 class Nodes {
     constructor(options) {
+        options = options || {};
         this.allNodes = {};
         this.groups = {};
         this.external = {};
         this.edges = [];
-        this.options = _.defaults(options, {
-            node: { shape: 'box3d' },
-            edge: { fontsize: 7, color: 'black' },
-            groupNode: { shape: 'rectangle' },
-            missingNode: { shape: 'rectangle' },
-            groupEdge: { color: 'black' },
+        this.options = {
+            graph: _.extend({ id: 'g', rankdir: 'LR' }, options.graph),
+            group: _.extend({ color: 'blue' }, options.group),
+            node: _.extend({ shape: 'box3d' }, options.node),
+            edge: _.extend({ fontsize: 7, color: 'black' },options.edge),
+            groupNode: _.extend({ shape: 'rectangle' }, options.graphNode),
+            missingNode: _.extend({ shape: 'rectangle' }, options.missingNode),
+            groupEdge: _.extend({ color: 'black' }, options.groupEdge)
+        };
+        this.options = _.extend({
             fromStyle: 'stroke: red; stroke-width: 4px;',
             toStyle: 'stroke: green; stroke-width: 4px;',
             css: '.node { cursor: pointer; }'
-        });
+        }, this.options);
     }
 
     node(name, attribs) {
@@ -75,37 +85,34 @@ class Nodes {
     drawNode(id, attribs) {
         attribs = attribs || {};
         attribs.href = 'javascript:(function(){document.getElementById(\'g\').setAttribute(\'class\', \'graph ' + id + '\')})()';
-        return '    ' + id + attr(attribs) + ';\n';
+        return '    ' + id + nodeAttr(attribs) + ';\n';
     }
 
     drawEdge(edge) {
         edge.attribs = edge.attribs || {};
         edge.attribs.edgetooltip = edge.fromName + ' -&gt; ' + edge.toName;
         edge.attribs.id = 'f_' + edge.fromId + ' t_' + edge.toId;
-        return '  ' + edge.fromId + ' -> ' + edge.toId + attr(edge.attribs) + ';\n';
+        return '  ' + edge.fromId + ' -> ' + edge.toId + nodeAttr(edge.attribs) + ';\n';
     }
 
     dot() {
         // Create digraph G
         let g = 'digraph G  {\n';
-        g += '  id="g";\n';
-        g += '  stylesheet="map.css";\n';
-        g += '  rankdir="LR";\n';
-        if (this.options.name) g += '  label=' + JSON.stringify(this.options.name) + ';\n';
+        g += '  ' + attr(this.options.graph) + '\n';
         if (this.options.node)
-            g += '  node' + attr(this.options.node) + ';\n';
+            g += '  node' + nodeAttr(this.options.node) + ';\n';
         if (this.options.edge)
-            g += '  edge' + attr(this.options.edge) + ';\n\n';
+            g += '  edge' + nodeAttr(this.options.edge) + ';\n\n';
 
         // draw groups and items
         _.each(this.groups, (group, name) => {
+            let attributes = _.defaults({ label: name }, this.options.group);
             g += '  subgraph ' + groupName(name) + '  {\n';
-            g += '    color=blue;\n';
-            g += '    label=' + JSON.stringify(name) + ';\n';
+            g += '    ' + attr(attributes) + '\n';
             if (this.options.groupNode)
-                g += '    node' + attr(this.options.groupNode) + ';\n';
+                g += '    node' + nodeAttr(this.options.groupNode) + ';\n';
             if (this.options.groupEdge)
-                g += '    edge' + attr(this.options.groupEdge) + ';\n';
+                g += '    edge' + nodeAttr(this.options.groupEdge) + ';\n';
 
             _.each(group, (node, id) => g += this.drawNode(id, node));
 
