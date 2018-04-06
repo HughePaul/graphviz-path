@@ -27,7 +27,7 @@ class Nodes {
             graph: _.extend({ id: 'g', rankdir: 'LR' }, options.graph),
             group: _.extend({ color: 'blue' }, options.group),
             node: _.extend({ shape: 'box3d' }, options.node),
-            edge: _.extend({ fontsize: 7, color: 'black' },options.edge),
+            edge: _.extend({ fontsize: 7, color: 'black' }, options.edge),
             groupNode: _.extend({ shape: 'rectangle' }, options.graphNode),
             missingNode: _.extend({ shape: 'rectangle' }, options.missingNode),
             groupEdge: _.extend({ color: 'black' }, options.groupEdge)
