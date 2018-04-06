@@ -30,13 +30,11 @@ class Nodes {
             edge: _.extend({ fontsize: 7, color: 'black' }, options.edge),
             groupNode: _.extend({ shape: 'rectangle' }, options.graphNode),
             missingNode: _.extend({ shape: 'rectangle' }, options.missingNode),
-            groupEdge: _.extend({ color: 'black' }, options.groupEdge)
+            groupEdge: _.extend({ color: 'black' }, options.groupEdge),
+            fromStyle: options.fromStyle || 'stroke: red; stroke-width: 4px;',
+            toStyle: options.toStyle || 'stroke: green; stroke-width: 4px;',
+            css: options.css || '.node { cursor: pointer; }'
         };
-        this.options = _.extend({
-            fromStyle: 'stroke: red; stroke-width: 4px;',
-            toStyle: 'stroke: green; stroke-width: 4px;',
-            css: '.node { cursor: pointer; }'
-        }, this.options);
     }
 
     node(name, attribs) {
