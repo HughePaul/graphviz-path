@@ -1,6 +1,6 @@
 {
   "name": "graphviz-path",
-  "version": "1.6.1",
+  "version": "1.6.2",
   "description": "Wrapper for graphviz to easily map paths between objects",
   "main": "index.js",
   "scripts": {
