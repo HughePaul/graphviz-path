@@ -7,7 +7,7 @@ let groupName = name => 'cluster_' + name.toLowerCase().replace(/[^a-z0-9]+/g, '
 
 let nodeId = name => 'r' + name.toLowerCase().replace(/[^a-z0-9]+/g, '_');
 
-let stringify = v => !v ? '""' : v.startsWithJSON('<<') ? v : JSON.stringify(v).replace(/\\\\l/g, '\\l');
+let stringify = v => !v ? '""' : v.startsWith('<<') ? v : JSON.stringify(v).replace(/\\\\l/g, '\\l');
 
 let attr = attribs => attribs && Object.keys(attribs).length ?
     Object.keys(attribs).map(v => v + '=' + stringify(attribs[v]) + ';').join(' ')
