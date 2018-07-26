@@ -7,8 +7,10 @@ let groupName = name => 'cluster_' + name.toLowerCase().replace(/[^a-z0-9]+/g, '
 
 let nodeId = name => 'r' + name.toLowerCase().replace(/[^a-z0-9]+/g, '_');
 
+let stringify = v => !v ? '""' : v.startsWithJSON('<<') ? v : JSON.stringify(v).replace(/\\\\l/g, '\\l');
+
 let attr = attribs => attribs && Object.keys(attribs).length ?
-    Object.keys(attribs).map(v => v + '=' + JSON.stringify(attribs[v]) + ';').join(' ')
+    Object.keys(attribs).map(v => v + '=' + stringify(attribs[v]) + ';').join(' ')
     : '';
 
 let nodeAttr = attribs => {
@@ -102,6 +104,9 @@ class Nodes {
         if (this.options.edge)
             g += '  edge' + nodeAttr(this.options.edge) + ';\n\n';
 
+        if (this.options.raw)
+            g += '    ' + this.options.raw + '\n';
+
         // draw groups and items
         _.each(this.groups, (group, name) => {
             let attributes = _.defaults({ label: name }, this.options.group);
@@ -111,6 +116,9 @@ class Nodes {
                 g += '    node' + nodeAttr(this.options.groupNode) + ';\n';
             if (this.options.groupEdge)
                 g += '    edge' + nodeAttr(this.options.groupEdge) + ';\n';
+
+            if (this.options.groupRaw)
+                g += '    ' + this.options.groupRaw + '\n';
 
             _.each(group, (node, id) => g += this.drawNode(id, node));
 
