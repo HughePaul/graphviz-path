@@ -104,9 +104,6 @@ class Nodes {
         if (this.options.edge)
             g += '  edge' + nodeAttr(this.options.edge) + ';\n\n';
 
-        if (this.options.raw)
-            g += '    ' + this.options.raw + '\n';
-
         // draw groups and items
         _.each(this.groups, (group, name) => {
             let attributes = _.defaults({ label: name }, this.options.group);
@@ -117,10 +114,10 @@ class Nodes {
             if (this.options.groupEdge)
                 g += '    edge' + nodeAttr(this.options.groupEdge) + ';\n';
 
+            _.each(group, (node, id) => g += this.drawNode(id, node));
+
             if (this.options.groupRaw)
                 g += '    ' + this.options.groupRaw + '\n';
-
-            _.each(group, (node, id) => g += this.drawNode(id, node));
 
             g += '  }\n\n';
         });
@@ -132,6 +129,9 @@ class Nodes {
 
         // draw edges
         _.each(this.edges, edge => g += this.drawEdge(edge));
+
+        if (this.options.raw)
+            g += '    ' + this.options.raw + '\n';
 
         g += '}\n';
 
