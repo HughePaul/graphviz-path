@@ -143,7 +143,7 @@ class Nodes {
             });
             g += '  }\n\n';
         }
-    
+
         g += '}\n';
 
         return g;
