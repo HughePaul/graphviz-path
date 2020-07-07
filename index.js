@@ -3,7 +3,7 @@
 const _ = require('lodash');
 const Viz = require('viz.js');
 
-let groupName = name => 'cluster_' + name.toLowerCase().replace(/[^a-z0-9]+/g, '_');
+let groupName = (name, cluster = true) => (cluster ? 'cluster_' : 'group_') + name.toLowerCase().replace(/[^a-z0-9]+/g, '_');
 
 let nodeId = name => 'r' + name.toLowerCase().replace(/[^a-z0-9]+/g, '_');
 
@@ -26,6 +26,7 @@ class Nodes {
         this.external = {};
         this.edges = [];
         this.options = {
+            sameRank: options.sameRank || [],
             graph: _.extend({ id: 'g', rankdir: 'LR' }, options.graph),
             group: _.extend({ color: 'blue' }, options.group),
             node: _.extend({ shape: 'box3d' }, options.node),
@@ -133,6 +134,16 @@ class Nodes {
         if (this.options.raw)
             g += '    ' + this.options.raw + '\n';
 
+        if (this.options.sameRank.length) {
+            let attributes = { rank: 'same' };
+            g += '  subgraph ' + groupName('SAME_RANK') + '  {\n';
+            g += '    ' + attr(attributes) + '\n';
+            _.each(this.options.sameRank, id => {
+                g += '    ' + nodeId(id) + ';\n';
+            });
+            g += '  }\n\n';
+        }
+    
         g += '}\n';
 
         return g;
