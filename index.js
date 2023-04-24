@@ -172,7 +172,7 @@ class Nodes {
             this.options.css + '\n';
     }
 
-    svg(cb) {
+    svg() {
         return new Promise((resolve, reject) => {
             const dot = this.dot();
             const viz = new Viz(Viz.render);
