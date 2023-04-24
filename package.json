@@ -9,11 +9,11 @@
   "author": "Paul Winkler",
   "license": "MIT",
   "dependencies": {
-    "lodash": "^4.17.4",
-    "viz.js": "^1.8.2"
+    "lodash": "^4.17.21",
+    "viz.js": "^2.1.2"
   },
   "devDependencies": {
-    "eslint": "^7.4.0"
+    "eslint": "^8.39.0"
   },
   "repository": {
     "type": "git",

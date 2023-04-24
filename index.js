@@ -2,6 +2,7 @@
 
 const _ = require('lodash');
 const Viz = require('viz.js');
+Viz.render = require('viz.js/full.render.js');
 
 let groupName = (name, cluster = true) => (cluster ? 'cluster_' : 'group_') + name.toLowerCase().replace(/[^a-z0-9]+/g, '_');
 
@@ -171,13 +172,17 @@ class Nodes {
             this.options.css + '\n';
     }
 
-    svg() {
-        let dot = this.dot();
-        let svg = Viz(dot);
-        let css = this.style();
-        let style = '<defs><style type="text/css"><![CDATA[\n' + css + '\n]]></style></defs>\n';
-        svg = svg.replace(/(<svg[^>]*>)/, '$1' + style);
-        return svg;
+    svg(cb) {
+        return new Promise((resolve, reject) => {
+            const dot = this.dot();
+            const viz = new Viz(Viz.render);
+            viz.renderString(dot).then(svg => {
+                const css = this.style();
+                let style = '<defs><style type="text/css"><![CDATA[\n' + css + '\n]]></style></defs>\n';
+                svg = svg.replace(/(<svg[^>]*>)/, '$1' + style);
+                resolve(svg);
+            }).catch(reject);
+        });
     }
 }
 
